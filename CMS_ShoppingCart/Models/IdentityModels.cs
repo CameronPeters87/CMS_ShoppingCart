@@ -1,6 +1,7 @@
 ﻿using System.Data.Entity;
 using System.Security.Claims;
 using System.Threading.Tasks;
+using CMS_ShoppingCart.Models.Entities;
 using Microsoft.AspNet.Identity;
 using Microsoft.AspNet.Identity.EntityFramework;
 
@@ -29,5 +30,7 @@ namespace CMS_ShoppingCart.Models
         {
             return new ApplicationDbContext();
         }
+
+        public DbSet<PagesDTO> Pages { get; set; }
     }
 }
