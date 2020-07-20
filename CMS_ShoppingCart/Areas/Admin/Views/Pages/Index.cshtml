@@ -17,8 +17,9 @@
 }
 else
 {
-    <table class="table">
-        <tr>
+    <table class="table sorting" id="pages">
+        <tr class="home">
+            <th></th>
             <th>
                 Title
             </th>
@@ -28,29 +29,86 @@ else
             <th>
                 HasSidebar
             </th>
+            <th>
+                Sorting
+            </th>
             <th></th>
         </tr>
 
         @foreach (var item in Model)
         {
-            <tr>
-                <td>
-                    @Html.DisplayFor(modelItem => item.Title)
-                </td>
-                <td>
-                    @Html.DisplayFor(modelItem => item.Slug)
-                </td>
-                <td>
-                    @Html.DisplayFor(modelItem => item.HasSidebar)
-                </td>
-                <td>
-                    @Html.ActionLink("Edit", "EditPage", new { id = item.Id }) |
-                    @Html.ActionLink("Details", "PageDetails", new { id = item.Id }) |
-                    @Html.ActionLink("Delete", "DeletePage", new { id = item.Id })
-                </td>
-            </tr>
+    <tr id="id_@item.Id" class="@item.Slug">
+
+        <td>
+            @if (item.Slug != "home")
+            {
+                <span class="fa fa-bars"></span>
+            }
+            else
+            {
+                <span></span>
+            }
+        </td>
+
+        <td>
+            @Html.DisplayFor(modelItem => item.Title)
+        </td>
+        <td>
+            @Html.DisplayFor(modelItem => item.Slug)
+        </td>
+        <td>
+            @Html.DisplayFor(modelItem => item.HasSidebar)
+        </td>
+        <td>
+            @Html.DisplayFor(modelItem => item.Sorting)
+        </td>
+        <td>
+            @Html.ActionLink("Edit", "EditPage", new { id = item.Id }) |
+            @Html.ActionLink("Details", "PageDetails", new { id = item.Id }) |
+            @if (item.Slug != "home")
+            {
+                @Html.ActionLink("Delete", "DeletePage", new { id = item.Id },
+                               new { @class = "delete" })
+            }
+        </td>
+    </tr>
         }
 
     </table>
+
+}
+
+
+@section Scripts {
+    <script src="https://code.jquery.com/ui/1.12.0/jquery-ui.min.js">
+
+    </script>
+    <script>
+        $(function () {
+
+            /* Confirm on deletion*/
+            $("a.delete").click(function () {
+                if (!confirm("Confirm page deletion")) return false;
+            });
+            ////////////////////////////////////////////////////////
+
+            /* Confirm on deletion*/
+            // Get class table with id pages
+            $("table#pages tbody").sortable({
+                items: "tr:not(.home)", // Drag and drop table rows but not class home row
+                placeholder: "ui-state-highlight",
+                update: function () {
+                    var ids = $("table#pages tbody").sortable("serialize");
+                    var url = "/Admin/Pages/ReorderPages";
+
+                    $.post(url, ids, function (data) {
+                    });
+                }
+            });
+            ////////////////////////////////////////////////////////
+
+        });
+
+    </script>
 
 }

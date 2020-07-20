@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Web;
+using System.Web.Mvc;
 
 namespace CMS_ShoppingCart.Models.ViewModels.Pages
 {
@@ -31,6 +32,7 @@ namespace CMS_ShoppingCart.Models.ViewModels.Pages
         [Required]
         [StringLength(int.MaxValue)]
         [MinLength(3)]
+        [AllowHtml]
         public string Body { get; set; }
         public int Sorting { get; set; }
         public bool HasSidebar { get; set; }

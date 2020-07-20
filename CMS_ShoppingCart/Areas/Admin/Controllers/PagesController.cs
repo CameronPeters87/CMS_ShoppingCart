@@ -1,9 +1,11 @@
 ﻿using CMS_ShoppingCart.Models;
 using CMS_ShoppingCart.Models.Entities;
+using CMS_ShoppingCart.Models.ViewModels;
 using CMS_ShoppingCart.Models.ViewModels.Pages;
 using Microsoft.Ajax.Utilities;
 using System;
 using System.Collections.Generic;
+using System.Data.Entity;
 using System.Linq;
 using System.Net;
 using System.Web;
@@ -139,13 +141,6 @@ namespace CMS_ShoppingCart.Areas.Admin.Controllers
                 }
             }
 
-            if (db.Pages.Where(p => p.Id.Equals(id)).Any(p => p.Title.Equals(model.Title)) ||
-                db.Pages.Where(p => p.Id.Equals(id)).Any(p => p.Slug.Equals(model.Slug)))
-            {
-                ModelState.AddModelError("", "Title or slug already exists");
-                return View(model);
-            }
-
             dto.Title = model.Title;
             dto.Slug = model.Slug;
             dto.HasSidebar = model.HasSidebar;
@@ -178,5 +173,72 @@ namespace CMS_ShoppingCart.Areas.Admin.Controllers
             return View(model);
         }
 
+        // GET: Admin/Pages/DeletePage?id
+        public ActionResult DeletePage(int id)
+        {
+            if (id == null)
+            {
+                return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
+            }
+            PagesDTO page = db.Pages.Find(id);
+            db.Pages.Remove(page);
+            db.SaveChanges();
+
+            return RedirectToAction("Index");
+        }
+
+        [HttpPost]
+        public void ReorderPages(int[] id)
+        {
+            int count = 1;
+
+            PagesDTO page;
+
+            foreach (var pageId in id)
+            {
+                page = db.Pages.Find(pageId);
+                page.Sorting = count;
+                db.SaveChanges();
+                count++;
+            }
+        }
+
+
+        // GET: Admin/Pages/EditSidebar
+        public ActionResult EditSidebar()
+        {
+            SidebarDTO dto = db.Sidebars.Find(1); // Only one sidebar
+
+            if (dto == null)
+            {
+                return HttpNotFound();
+            }
+
+            SidebarVM model = new SidebarVM(dto);
+
+            return View(model);
+        }
+
+        // Post: Admin/Pages/EditSidebar
+        [HttpPost]
+        public ActionResult EditSidebar(SidebarVM model)
+        {
+            if (ModelState.IsValid)
+            {
+                SidebarDTO dto = new SidebarDTO
+                {
+                    Id = model.Id,
+                    Body = model.Body
+                };
+
+                db.Entry(dto).State = EntityState.Modified;
+                db.SaveChanges();
+
+                TempData["SM"] = "You have edited the sidebar!";
+
+                return RedirectToAction("EditSidebar");
+            }
+            return View(model);
+        }
     }
 }

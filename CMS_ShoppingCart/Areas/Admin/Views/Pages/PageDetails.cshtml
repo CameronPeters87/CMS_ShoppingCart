@@ -30,17 +30,8 @@
         </dt>
 
         <dd>
-            @Html.DisplayFor(model => model.Body)
+            @Html.Raw(Model.Body)
         </dd>
-
-        <dt>
-            @Html.DisplayNameFor(model => model.HasSidebar)
-        </dt>
-
-        <dd>
-            @Html.DisplayFor(model => model.HasSidebar)
-        </dd>
-
     </dl>
 </div>
 <p>
