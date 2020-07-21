@@ -1,0 +1,148 @@
+﻿@model IEnumerable<CMS_ShoppingCart.Models.ViewModels.CategoryVM>
+
+@{
+    ViewBag.Title = "Categories";
+}
+
+<h2>Categories</h2>
+
+<div class="new-cat">
+    <input type="text" id="newcatname" />
+    <p>
+        <a href="#" id="newcata">Add new category</a>
+        <span class="ajax-text">
+            <img src="~/Content/img/ajax-loader.gif" />
+        </span>
+    </p>
+</div>
+
+@if (!Model.Any())
+{
+    <h2 class="text-center">You dont have any categories</h2>
+}
+else
+{
+    <table class="table sorting" id="pages">
+        <tr>
+            <th>
+                @Html.DisplayNameFor(model => model.Name)
+            </th>
+            <th></th>
+        </tr>
+
+        @foreach (var item in Model)
+        {
+            <tr>
+                <td>
+                    @Html.EditorFor(modelItem => item.Name, new { htmlAttributes = new { @class = "form-control", @readonly = "readonly" } })
+                </td>
+                <td>
+                    @Html.ActionLink("Delete", "DeleteCategory", new { id = item.Id },
+                   new { @class = "delete" })
+                </td>
+            </tr>
+        }
+
+    </table>
+
+}
+
+@section Scripts {
+    <script src="https://code.jquery.com/ui/1.12.0/jquery-ui.min.js">
+
+    </script>
+    <script>
+        $(function () {
+
+        /* Add new category*/
+            var newCatA = $("a#newcata");
+            var newCatTextInput = $("#newcatname");
+            var ajaxText = $("span.ajax-text");
+            var table = $("table#pages tbody");
+
+            // If the text input pressed enter, perform anchor function
+            newCatTextInput.keyup(function (e) {
+                if (e.keyCode == 13) {
+                    newCatA.click();
+                }
+            });
+
+            newCatA.click(function (e) {
+                e.preventDefault(); // if this action is called the default action will not be called
+
+                // Assign variable of the Category text input value
+                var catName = newCatTextInput.val();
+
+                if (catName < 2) {
+                    alert("Category name must be atleast 2 characters long");
+                    return false;
+                }
+
+                ajaxText.show();
+
+                var url = "/admin/shop/AddNewCategory";
+
+                // Have the ajax call
+                $.post(url, { catName: catName }, function (data) {
+                    var response = data.trim();
+
+                    if (response == "titletaken") {
+                        ajaxText.html("<span class='alert aler-danger'>That category is taken</span>");
+
+                        setTimeout(function () {
+                            ajaxText.fadeOut("fast", function () {
+                                ajaxText.html("<img src=/Content/img/ajax-loader.gif />");
+                            });
+                        }, 2000);
+                        return false;
+                    } else {
+                        if (!$("table#pages").length) {
+                            location.reload();
+                        } else {
+                            ajaxText.html("<span class='alert aler-success'>That category has been added to the list</span>");
+
+                            setTimeout(function () {
+                                ajaxText.fadeOut("fast", function () {
+                                    ajaxText.html("<img src=/Content/img/ajax-loader.gif />");
+                                });
+                            }, 2000);
+                            newCatTextInput.val("");
+
+                            // Clone the last row and call it toAppend
+                            var toAppend = $("table#pages tbody tr:last").clone();
+                            // Give that row an id_data
+                            toAppend.attr("id", "id_" + data);
+                            // Give the Name of the row the value of new column name
+                            toAppend.find("#item_Name").val(catName);
+                            // Put the delete anchor and href to delete action
+                            toAppend.find("a#delete").attr("href", "/admin/shop/DeleteCategory/" + data);
+                            // Add the row to the table
+                            table.toAppend(toAppend);
+                            tabl.sortable("refresh");
+                        }
+                    }
+                });
+            });
+
+            ////////////////////////////////////////////////////////
+
+            /* Confirm on deletion*/
+            // Get class table with id pages
+            $("table#pages tbody").sortable({
+                items: "tr:not(.home)", // Drag and drop table rows but not class home row
+                placeholder: "ui-state-highlight",
+                update: function () {
+                    var ids = $("table#pages tbody").sortable("serialize");
+                    var url = "/Admin/Pages/ReorderPages";
+
+                    $.post(url, ids, function (data) {
+                    });
+                }
+            });
+            ////////////////////////////////////////////////////////
+
+        });
+
+    </script>
+
+}
