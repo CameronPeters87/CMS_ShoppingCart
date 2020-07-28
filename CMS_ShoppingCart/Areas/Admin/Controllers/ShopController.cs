@@ -29,5 +29,26 @@ namespace CMS_ShoppingCart.Areas.Admin.Controllers
             
             return View(categories);
         }
+        [HttpPost]
+        public string AddNewCategory(string catName)
+        {
+            string id;
+
+            if (db.Categories.Any(c => c.Name.Equals(catName)))
+                return "That title is taken is taken";
+
+            CategoryDTO dto = new CategoryDTO();
+
+            dto.Name = catName;
+            dto.Slug = catName.Replace(" ", "-");
+            dto.Sorting = 100;
+
+            db.Categories.Add(dto);
+            db.SaveChanges();
+
+            id = dto.Id.ToString();
+
+            return id;
+        }
     }
 }
