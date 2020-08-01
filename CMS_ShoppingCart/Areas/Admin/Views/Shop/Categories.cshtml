@@ -22,6 +22,10 @@
 }
 else
 {
+    <div id="deletediv" class="alert alert-danger">
+        A Category has been removed
+    </div>
+
     <table class="table sorting categories" id="pages">
         <tr class="home">
             <th>
@@ -53,7 +57,7 @@ else
     <script>
         $(function () {
 
-        /***************** Add new category ********/
+            /***************** Add new category ********/
             var newCatA = $("a#newcata");
             var newCatTextInput = $("#newcatname");
             var ajaxText = $("span.ajax-text");
@@ -119,14 +123,14 @@ else
 
             ////////////////////////////////////////////////////////
 
-            /* Confirm on deletion*/
-            // Get class table with id pages
+            /* Reorder Categories */
+            // Get class table with id categories
             $("table#pages tbody").sortable({
                 items: "tr:not(.home)", // Drag and drop table rows but not class home row
                 placeholder: "ui-state-highlight",
                 update: function () {
                     var ids = $("table#pages tbody").sortable("serialize");
-                    var url = "/Admin/Pages/ReorderPages";
+                    var url = "/Admin/Shop/ReorderCategories";
 
                     $.post(url, ids, function (data) {
                     });
@@ -134,6 +138,22 @@ else
             });
             ////////////////////////////////////////////////////////
 
+            /* Confirm on deletion*/
+
+            $("body").on("click", "a.delete", function () {
+                if (!confirm("Confirm page deletion")) return false;
+            });
+
+            ////////////////////////////////////////////////////////////
+
+            /* Rename Category*/
+
+            $("body").on("click", "a.delete", function () {
+                if (!confirm("Confirm page deletion")) return false;
+
+            });
+
+            ////////////////////////////////////////////////////////////
         });
 
     </script>

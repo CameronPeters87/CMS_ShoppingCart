@@ -173,7 +173,7 @@ namespace CMS_ShoppingCart.Areas.Admin.Controllers
             return View(model);
         }
 
-        // GET: Admin/Pages/DeletePage?id
+        // Post: Admin/Pages/DeletePage?id
         public ActionResult DeletePage(int id)
         {
             if (id == null)

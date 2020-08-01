@@ -1,9 +1,13 @@
 ﻿using CMS_ShoppingCart.Models;
 using CMS_ShoppingCart.Models.Entities;
 using CMS_ShoppingCart.Models.ViewModels;
+using CMS_ShoppingCart.Models.ViewModels.Shop;
 using System;
 using System.Collections.Generic;
+using System.Data.Entity;
 using System.Linq;
+using System.Net;
+using System.Threading.Tasks;
 using System.Web;
 using System.Web.Mvc;
 
@@ -21,11 +25,12 @@ namespace CMS_ShoppingCart.Areas.Admin.Controllers
              *                  orderby c.Sorting
              *                  select new CategoryVM(c)).ToList();
              */
-             var categories = db.Categories
-                .ToArray()
-                .OrderBy(c => c.Sorting)
-                .Select(c => new CategoryVM(c))
-                .ToList();
+            var categories = db.Categories
+               .ToArray()
+               .OrderBy(c => c.Sorting)
+               .Select(c => new CategoryVM(c))
+               .ToList();
+
             
             return View(categories);
         }
@@ -49,6 +54,44 @@ namespace CMS_ShoppingCart.Areas.Admin.Controllers
             id = dto.Id.ToString();
 
             return id;
+        }
+        // Post: Admin/Shop/ReorderCategories?id
+        [HttpPost]
+        public void ReorderCategories(int[] id)
+        {
+            int count = 1;
+
+            CategoryDTO dto;
+
+            foreach (var catId in id)
+            {
+                dto = db.Categories.Find(catId);
+                dto.Sorting = count;
+                db.SaveChanges();
+                count++;
+            }
+        }
+        // Post: Admin/Shop/DeleteCategory?id
+        public ActionResult DeleteCategory(int? id)
+        {
+            if (id == null)
+            {
+                return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
+            }
+            CategoryDTO category = db.Categories.Find(id);
+            db.Categories.Remove(category);
+            db.SaveChanges();
+
+            return RedirectToAction("Categories");
+        }
+        // Get: Admin/Shop/AddProduct
+        public async Task<ActionResult> AddProduct()
+        {
+            var model = new ProductVM
+            {
+                Categories = new SelectList(db.Categories.ToList(), "Id", "Name")
+            };
+            return View(model);
         }
     }
 }
